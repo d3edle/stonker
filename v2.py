@@ -3,6 +3,8 @@ import json
 import csv 
 import asyncio
 import yfinance as yf
+import difflib
+
 
 ''
 import discord
@@ -21,12 +23,32 @@ with open('log.csv', 'r') as file_in:
         allStonkDict[line['ticker']] = (line['price'], line['id'], line['specifier'])
 
 
+# Get list of valid stocks (must be traded on TSX, NASDAQ, or NYSE)------------------------------------------------------
+
 stonkList = []
+company_to_ticker = {}
 
 with open('nasdaq.csv', 'r') as file_in:
     dictReader = csv.DictReader(file_in)
     for line in dictReader:
         stonkList.append(line['Symbol'])
+        company_to_ticker[line['Company Name'].lower()] = line['Symbol']
+
+
+with open('nyse.csv', 'r') as file_in:
+    dictReader = csv.DictReader(file_in)
+    for line in dictReader:
+        stonkList.append(line['Symbol'])
+        company_to_ticker[line['Name'].lower()] = line['Symbol']
+
+with open('TSX.txt', 'r') as file_in:
+    file_in.readline() #Skip the first line
+    for line in file_in:
+        symbol = line.split('\t')[0]
+        name = line.split('\t')[1].strip().lower()  # Adjust if company name is in a different column
+        stonkList.append(symbol)
+        company_to_ticker[name] = symbol
+
 
 class MyClient(discord.Client):
     # Suppress error on the User attribute being None since it fills up later
@@ -46,10 +68,10 @@ class MyClient(discord.Client):
     # In this basic example, we just synchronize the app commands to one guild.
     # Instead of specifying a guild to every command, we copy over our global commands instead.
     # By doing so, we don't have to wait up to an hour until they are shown to the end-user.
-    # async def setup_hook(self):
-    #     # This copies the global commands over to your guild.
-    #     self.tree.copy_global_to(guild=MY_GUILD)
-    #     await self.tree.sync(guild=MY_GUILD)
+    async def setup_hook(self):
+        # This copies the global commands over to your guild.
+        # self.tree.copy_global_to(guild=MY_GUILD)
+        await self.tree.sync()
 
 
 intents = discord.Intents.default()
@@ -141,6 +163,7 @@ async def all(interaction: discord.Interaction):
             embed.add_field(name=ticker, value=f'Target Price: {price} Current Price: {current_price} Specifier: {specifier}', inline=False)
     await interaction.response.send_message(embed=embed)
 
+
 @client.tree.command()
 @app_commands.describe(
     ticker='The ticker symbol of the stock you want to delete',
@@ -160,6 +183,24 @@ async def delete(interaction: discord.Interaction, ticker: str):
                 return
     embed = discord.Embed(title=f'{ticker} was not found in your list.',)
     await interaction.response.send_message(embed=embed)
+
+@client.tree.command()
+async def clear(interaction: discord.Interaction):
+    """To clear all your stocks."""
+    to_delete = []
+    for stock in allStonkDict:
+        if str(allStonkDict[stock][1] == str(interaction.user.id)):
+            to_delete.append(stock)
+            embed = discord.Embed(
+                title=f'All of your stocks have been cleared.',
+                color=discord.Colour.blurple(), # Pycord provides a class with default colors you can choose from
+            )
+    for stock in to_delete:
+        del allStonkDict[stock]
+    rewrite()
+    await interaction.response.send_message(embed=embed)
+
+    # return
 
 
 @client.tree.command()
@@ -223,16 +264,41 @@ async def add(interaction: discord.Interaction, ticker: str, price: str, specifi
     """For adding a stock."""
 
     specifier = specifier.value
+    orig = ticker
     ticker = ticker.upper()
 
     # Checks if the ticker is valid
+    # Try to resolve company name to ticker symbol if not found
     if ticker not in stonkList:
-        embed = discord.Embed(
-        description= f'{ticker} is not a valid ticker symbol. Please try again.',
-        color=discord.Colour.blurple(), # Pycord provides a class with default colors you can choose from
-        )   
-        await interaction.response.send_message(embed=embed)
-        return
+        # Try company name (case-insensitive)
+        possible_ticker = company_to_ticker.get(ticker.lower())
+        if not possible_ticker:
+            # Fuzzy match
+            close_names = difflib.get_close_matches(ticker.lower(), company_to_ticker.keys(), n=1, cutoff=0.65)
+            if close_names:
+                possible_ticker = company_to_ticker[close_names[0]]
+                ticker = possible_ticker
+                suggestion = f"Interpreted as '{close_names[0].title()}' ({ticker}). If this is incorrect, please try deleting it and instead inputting the ticker symbol or more of the company name for better accuracy. "
+            else:
+                embed = discord.Embed(
+                    description= f'{orig} is not a valid ticker symbol or company name. Please try again. If inputting a company name, please input more of the name for better accuracy.',
+                    color=discord.Colour.blurple(),
+                )
+                await interaction.response.send_message(embed=embed)
+                return
+        else:
+            ticker = possible_ticker
+            suggestion = f"Interpreted as '{ticker}'. If this is incorrect, please try deleting it and instead inputting the ticker symbol or more of the company name for better accuracy. "
+    else:
+        suggestion = ''
+
+    # if ticker not in stonkList:
+    #     embed = discord.Embed(
+    #     description= f'{ticker} is not a valid ticker symbol. Please try again.',
+    #     color=discord.Colour.blurple(), # Pycord provides a class with default colors you can choose from
+    #     )   
+    #     await interaction.response.send_message(embed=embed)
+    #     return
     
     # Check if the ticker is already in the user's list
     for stock in allStonkDict:
@@ -257,7 +323,7 @@ async def add(interaction: discord.Interaction, ticker: str, price: str, specifi
     allStonkDict[ticker] = (price, interaction.user.id, specifier)
 
     embed = discord.Embed(
-            description=f'Added {ticker}, will notify when the price reaches or goes {specifier} {price}.',
+            description=f'{suggestion}Added {ticker}, will notify when the price reaches or goes {specifier} {price}.',
             color=discord.Colour.blurple(), # Pycord provides a class with default colors you can choose from
     )
     await interaction.response.send_message(embed=embed)

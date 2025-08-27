@@ -14,7 +14,6 @@ tree = app_commands.CommandTree(stonkerBot)
 description = 'a bot for notfiying you via discord pings whenever your stocks reach a specified price'
 
 
-
 try: 
     with open('log.csv', 'r') as file_in:
         dictReader = csv.DictReader(file_in)
@@ -25,8 +24,6 @@ try:
             # allStonkDict[int(line['user_id'])][int(line['attempt_number'])] = (line['attempt_duration'], datetime.datetime(int(date[0]), int(date[1]), int(date[2]), int(timeofDay[0]), int(timeofDay[1]), int(float(timeofDay[2])//1)), int(line['total_seconds']))
 except Exception as e:
     print(e, 1)    
-
-
 
 
 @stonkerBot.event
