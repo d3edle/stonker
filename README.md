@@ -1,4 +1,3 @@
-# Stonker
 # 📈Stonker
 
 A discord bot that notifies you whenever a stock you've inputted reaches a specified price.
@@ -29,4 +28,5 @@ Use /edit [ticker] [price] [over/under] to edit a stock's tracking.
 Use /delete [ticker] to delete a stock. 
 
 Use /clear to clear all of your stocks.
+
 
