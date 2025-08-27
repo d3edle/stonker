@@ -20,10 +20,13 @@ Use /add [ticker] [price] [over/under] to add a stock
 - The ticker is not case-sensitive and must be traded on either NASDAQ, NYSE, or TSX
 - The price is your target price
 - "Over/under" is for specifying if you want to be notified for when the price goes over or under your specified price. 
-Every half-hour, if a stock reaches your target price, you will be notified via DM. 
+Every half-hour, if a stock reaches your target price, you will be notified via DM.
+
+Use /all to view all of your stocks, your target prices, and what prices they currrently trade at
 
 Use /edit [ticker] [price] [over/under] to edit a stock's tracking.
 
 Use /delete [ticker] to delete a stock. 
 
 Use /clear to clear all of your stocks.
+
