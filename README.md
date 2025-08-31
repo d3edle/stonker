@@ -4,13 +4,8 @@ A discord bot that notifies you whenever a stock you've inputted reaches a speci
 
 ## ⚙️ Installing
 
-### User install link:
-
-https://discord.com/oauth2/authorize?client_id=1400561530159763586&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Foauth2%2Fauthorize%3Fclient_id%3D1400561530159763586%26scope%3Dbot&integration_type=1&scope=dm_channels.messages.read+dm_channels.messages.write+applications.commands+dm_channels.read
-
-### Guild install link:
-
-https://discord.com/oauth2/authorize?client_id=1400561530159763586
+To invite the bot to your server the bot, you can do it from top.gg at the below link:
+https://top.gg/bot/1400561530159763586
 
 ## Commands:
 
@@ -28,5 +23,6 @@ Use /edit [ticker] [price] [over/under] to edit a stock's tracking.
 Use /delete [ticker] to delete a stock. 
 
 Use /clear to clear all of your stocks.
+
 
 
