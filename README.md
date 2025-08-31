@@ -24,5 +24,7 @@ Use /delete [ticker] to delete a stock.
 
 Use /clear to clear all of your stocks.
 
+If you enjoying the bot, please consider leaving a review on Top.gg! https://top.gg/bot/1400561530159763586#reviews
+
 
 
