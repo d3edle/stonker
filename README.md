@@ -4,7 +4,7 @@ A discord bot that notifies you whenever a stock you've inputted reaches a speci
 
 ## ⚙️ Installing
 
-To invite the bot to your server the bot, you can do it from top.gg at the below link: \n
+To invite the bot to your server the bot, you can do it from top.gg at the below link:  
 https://top.gg/bot/1400561530159763586
 
 ## Commands:
@@ -25,6 +25,7 @@ Use /delete [ticker] to delete a stock.
 Use /clear to clear all of your stocks.
 
 If you enjoying the bot, please consider leaving a review on Top.gg! https://top.gg/bot/1400561530159763586#reviews
+
 
 
 
